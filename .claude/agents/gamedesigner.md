@@ -1,7 +1,7 @@
 ---
 name: gamedesigner
 description: Use for game design tasks: mechanics, core loop, balance, economy, progression, levels, player experience, feature specs, and design critique.
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, Edit, Write
 model: sonnet
 ---
 
