@@ -69,3 +69,7 @@ backend/.env.stage
 frontend-discord/.data
 
 sky-bounce-itch.zip
+
+# Claude Code — local-only settings (общий settings.json коммитится)
+.claude/settings.local.json
+.claude/.credentials.json
