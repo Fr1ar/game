@@ -8,6 +8,7 @@ const JUMP_SPEED = 860;
 const MAX_FALL_SPEED = 1100;
 const PLATFORM_HEIGHT = 14;
 const BASE_PLATFORM_WIDTH = 78;
+const MAX_DEVICE_PIXEL_RATIO = 2;
 
 type PlatformKind = "static" | "moving" | "fragile";
 
@@ -71,12 +72,25 @@ app.innerHTML = `
       <button class="restart-button" type="button" data-restart>Новая попытка</button>
     </section>
     <section class="game-shell">
-      <canvas class="game-canvas" width="${VIEW_WIDTH}" height="${VIEW_HEIGHT}"></canvas>
+      <canvas
+        class="game-canvas"
+        width="${VIEW_WIDTH}"
+        height="${VIEW_HEIGHT}"
+        aria-label="Игровое поле Sky Bounce"
+      ></canvas>
       <div class="overlay hidden" data-overlay>
         <div class="overlay-card">
           <p class="overlay-title">Падение</p>
-          <p class="overlay-text">Нажми пробел или кнопку, чтобы начать заново.</p>
+          <p class="overlay-text">Нажми кнопку, пробел или тапни по игре, чтобы начать заново.</p>
         </div>
+      </div>
+      <div class="touch-controls" aria-hidden="true">
+        <button class="touch-zone touch-zone-left" type="button" data-touch="left">
+          <span>Влево</span>
+        </button>
+        <button class="touch-zone touch-zone-right" type="button" data-touch="right">
+          <span>Вправо</span>
+        </button>
       </div>
     </section>
   </main>
@@ -102,6 +116,14 @@ const restartButton = required(
   document.querySelector<HTMLButtonElement>("[data-restart]"),
   "Restart button was not found."
 );
+const leftTouchZone = required(
+  document.querySelector<HTMLButtonElement>('[data-touch="left"]'),
+  "Left touch zone was not found."
+);
+const rightTouchZone = required(
+  document.querySelector<HTMLButtonElement>('[data-touch="right"]'),
+  "Right touch zone was not found."
+);
 const context = required(canvas.getContext("2d"), "2D canvas context is not available.");
 
 const keys = {
@@ -116,11 +138,19 @@ let score = 0;
 let startHeight = 0;
 let bestScore = Number(localStorage.getItem("sky-bounce-best") ?? "0");
 let isGameOver = false;
+let animationFrameId = 0;
 
 bestLabel.textContent = String(bestScore);
 
 let player: Player = createPlayer();
 let platforms: Platform[] = [];
+
+function resizeCanvas(): void {
+  const pixelRatio = Math.min(window.devicePixelRatio || 1, MAX_DEVICE_PIXEL_RATIO);
+  canvas.width = Math.round(VIEW_WIDTH * pixelRatio);
+  canvas.height = Math.round(VIEW_HEIGHT * pixelRatio);
+  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+}
 
 function createPlayer(): Player {
   return {
@@ -387,7 +417,7 @@ function frame(time: number): void {
   }
 
   drawWorld();
-  requestAnimationFrame(frame);
+  animationFrameId = requestAnimationFrame(frame);
 }
 
 function setKeyState(code: string, value: boolean): void {
@@ -405,6 +435,16 @@ function handlePointer(clientX: number): void {
   const midpoint = bounds.left + bounds.width / 2;
   keys.left = clientX < midpoint;
   keys.right = clientX >= midpoint;
+}
+
+function releaseMovement(): void {
+  keys.left = false;
+  keys.right = false;
+}
+
+function setTouchDirection(direction: "left" | "right"): void {
+  keys.left = direction === "left";
+  keys.right = direction === "right";
 }
 
 window.addEventListener("keydown", (event) => {
@@ -428,7 +468,20 @@ restartButton.addEventListener("click", () => {
   resetGame();
 });
 
+overlay.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
+
+  if (isGameOver) {
+    resetGame();
+  }
+});
+
 canvas.addEventListener("pointerdown", (event) => {
+  if (isGameOver) {
+    resetGame();
+    return;
+  }
+
   handlePointer(event.clientX);
 });
 
@@ -441,17 +494,54 @@ canvas.addEventListener("pointermove", (event) => {
 });
 
 canvas.addEventListener("pointerup", () => {
-  keys.left = false;
-  keys.right = false;
+  releaseMovement();
 });
 
 canvas.addEventListener("pointerleave", () => {
-  keys.left = false;
-  keys.right = false;
+  releaseMovement();
 });
 
+canvas.addEventListener("pointercancel", () => {
+  releaseMovement();
+});
+
+for (const [element, direction] of [
+  [leftTouchZone, "left"],
+  [rightTouchZone, "right"]
+] as const) {
+  element.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+
+    if (isGameOver) {
+      resetGame();
+      return;
+    }
+
+    setTouchDirection(direction);
+  });
+
+  element.addEventListener("pointerup", releaseMovement);
+  element.addEventListener("pointerleave", releaseMovement);
+  element.addEventListener("pointercancel", releaseMovement);
+}
+
+window.addEventListener("blur", releaseMovement);
+window.addEventListener("resize", resizeCanvas);
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    cancelAnimationFrame(animationFrameId);
+    releaseMovement();
+    return;
+  }
+
+  lastTime = performance.now();
+  animationFrameId = requestAnimationFrame(frame);
+});
+
+resizeCanvas();
 resetGame();
-requestAnimationFrame((time) => {
+animationFrameId = requestAnimationFrame((time) => {
   lastTime = time;
   frame(time);
 });
