@@ -47,3 +47,22 @@ vite.config.ts    — конфиг Vite
 ## Деплой
 
 Проект собирается в `dist/` и заливается на itch.io как zip. Архив `sky-bounce-itch.zip` в `.gitignore`.
+
+# Project Instructions
+
+This is a game development project.
+
+## Global rules
+- Work only inside the current task scope.
+- Do not make large refactors unless explicitly requested.
+- Do not modify unrelated systems.
+- Prefer small, reviewable changes.
+- Explain risks and testing steps.
+- If requirements are unclear, ask before implementation.
+
+## Agent usage
+Use the correct agent for the task:
+- gamedesigner: mechanics, balance, progression, player experience
+- gameplay-dev: implementation of gameplay features
+- architect-dev: architecture, systems design, technical structure
+- qa: testing, bugs, edge cases, regression risks
