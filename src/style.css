@@ -1,0 +1,184 @@
+:root {
+  color: #1f2937;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.7), transparent 35%),
+    linear-gradient(135deg, #f97316 0%, #fb7185 100%);
+  font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+  line-height: 1.4;
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+button,
+canvas {
+  touch-action: manipulation;
+}
+
+.layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(320px, 420px);
+  justify-content: center;
+  gap: 24px;
+  padding: 32px 20px;
+  align-items: center;
+}
+
+.hud-panel,
+.game-shell {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 247, 237, 0.74);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 45px rgba(120, 53, 15, 0.18);
+}
+
+.hud-panel {
+  border-radius: 28px;
+  padding: 28px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9a3412;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 5vw, 3.3rem);
+  line-height: 0.95;
+}
+
+.description {
+  margin: 16px 0 0;
+  font-size: 1rem;
+  color: #7c2d12;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.stat-card {
+  border-radius: 20px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.82rem;
+  color: #9a3412;
+}
+
+.stat-value {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.6rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+  color: #7c2d12;
+}
+
+.controls span {
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.restart-button {
+  margin-top: 22px;
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 18px;
+  width: 100%;
+  font: inherit;
+  font-weight: 700;
+  color: #fff7ed;
+  background: linear-gradient(135deg, #ea580c, #dc2626);
+  cursor: pointer;
+}
+
+.restart-button:hover {
+  filter: brightness(1.03);
+}
+
+.game-shell {
+  position: relative;
+  border-radius: 32px;
+  padding: 12px;
+}
+
+.game-canvas {
+  display: block;
+  width: min(100%, 420px);
+  height: auto;
+  border-radius: 22px;
+  background: #fed7aa;
+}
+
+.overlay {
+  position: absolute;
+  inset: 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: rgba(17, 24, 39, 0.24);
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay-card {
+  max-width: 240px;
+  border-radius: 22px;
+  padding: 20px;
+  text-align: center;
+  background: rgba(255, 247, 237, 0.92);
+  color: #7c2d12;
+}
+
+.overlay-title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.overlay-text {
+  margin: 10px 0 0;
+}
+
+@media (max-width: 920px) {
+  .layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    padding: 20px 14px 28px;
+  }
+
+  .hud-panel,
+  .game-shell {
+    width: min(100%, 460px);
+  }
+}

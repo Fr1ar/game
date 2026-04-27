@@ -67,3 +67,5 @@ backend/.env.stage
 .state
 **/_td_database/
 frontend-discord/.data
+
+sky-bounce-itch.zip
