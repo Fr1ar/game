@@ -1,102 +1,130 @@
-# Sky Bounce — Game Design Document
+Game Design Document — Dream Shards
+1. Общее описание
 
-## Concept
+Жанр: 2D платформер
+Камера: Сайд-скролл
+Референсы: Karmazoo, Celeste (по ощущениям контроля), Limbo (по атмосфере)
+Целевая сессия: 2–3 минуты на уровень
 
-Sky Bounce is a browser-based endless vertical platformer inspired by Doodle Jump. The player controls a character that bounces automatically on platforms and must climb as high as possible without falling off the bottom of the screen.
+Концепт:
+Игрок управляет персонажем, путешествующим через серию снов. Каждый уровень — отдельный сон с уникальной визуальной и механической темой. Основная цель — собрать 3 осколка сна и добраться до портала, который появляется после их сбора.
 
-## Core Loop
+2. Core Gameplay Loop
+Игрок появляется в начале уровня (сна)
+Исследует пространство
+Преодолевает платформенные препятствия
+Находит и собирает 3 осколка
+После сбора всех осколков открывается портал
+Игрок достигает портала → завершение уровня → переход в новый сон
+3. Основные механики
+3.1 Передвижение
+Бег
+Прыжок (основной + возможен double jump / вариации позже)
+Скользящие поверхности / изменение гравитации (в зависимости от сна)
+3.2 Сбор осколков
+Всего: 3 на уровень
+Каждый осколок:
+Визуально выделен
+Может быть:
+на виду
+спрятан
+требовать мини-челленджа
+3.3 Портал
+Неактивен в начале уровня
+Активируется после сбора всех осколков
+Визуально усиливается (эффект "пробуждения")
+4. Level Design
+4.1 Структура уровня (по аналогии с Karmazoo)
 
-1. Character spawns on a wide starting platform and immediately bounces upward.
-2. Player steers left/right to land on successive platforms.
-3. Camera follows the player upward; platforms below the screen are despawned.
-4. New platforms are spawned continuously above the visible area.
-5. If the player falls below the camera view, the game ends.
-6. The score equals the maximum height reached (logical pixels / 10, displayed as integer).
-7. Best score is persisted in `localStorage` across sessions.
+Уровень строится как:
 
-## Physics
+Компактный маршрут (2–3 минуты)
+С несколькими развилками
+С возможностью:
+выбрать порядок сбора осколков
+возвращаться назад
+4.2 Типовая схема уровня
+Стартовая зона (безопасная)
+Основной маршрут
+2–3 ответвления:
+короткие челленджи
+платформенные секции
+Точки с осколками:
+1 — простой
+1 — средний
+1 — сложный / скрытый
+4.3 Дизайн-принципы
+Четкая читаемость
+Минимальный downtime
+Быстрое восстановление после ошибки
+Каждый уровень вводит одну новую идею
+5. Тематика снов
 
-| Constant | Value | Effect |
-|---|---|---|
-| `GRAVITY` | 1600 px/s² | Downward acceleration applied every frame |
-| `JUMP_SPEED` | 860 px/s | Upward velocity set on each bounce |
-| `MAX_FALL_SPEED` | 1100 px/s | Terminal velocity cap |
-| `HORIZONTAL_SPEED` | 260 px/s | Constant left/right speed while input is held |
+Каждый сон = уникальная механика или модификатор:
 
-The logical coordinate space is **420 × 720 px** (7:12 ratio). All physics run in logical pixels; DPR scaling is applied only at render time.
+Примеры:
 
-The player wraps horizontally: exiting the left edge re-enters from the right and vice versa.
+Сон падения
+инверсия гравитации
+Водный сон
+замедленное движение
+Ломаный сон
+исчезающие платформы
+Кошмар
+преследующий объект
+Спокойный сон
+минимальный челлендж, атмосферный уровень
+6. Прогрессия
+Постепенное усложнение:
+Уровень 1–3: обучение
+Уровень 4–10: комбинирование механик
+Позже:
+высокая плотность челленджей
+тайминг и precision
+Возможна система:
+миров (dream layers)
+или последовательных снов
+7. Визуальный стиль
+Сюрреализм
+Размытые границы объектов
+Переходы между состояниями
+Цвет как индикатор механики
+8. Аудио
+Атмосферная музыка
+Изменение трека при сборе осколков
+Усиление звука при открытии портала
+9. UI/UX
 
-## Platform Types
+Минимальный интерфейс:
 
-| Type | Color | Behavior |
-|---|---|---|
-| `static` | Green (`#15803d`) | Fixed position, reusable indefinitely |
-| `moving` | Teal (`#0f766e`) | Moves horizontally, bounces off side walls |
-| `fragile` | Amber (`#b45309`) | Breaks on first contact, narrower (68 px vs 78 px) |
+Счетчик осколков (0/3)
+Индикатор направления к порталу (после активации)
+Без перегрузки HUD
+10. Условия проигрыша
 
-### Spawn Distribution (per platform)
+Возможные варианты:
 
-- ~17% moving
-- ~16% fragile
-- ~67% static
+Падение → рестарт с чекпоинта
+Контакт с опасностями
 
-Platforms are spaced **68–104 logical px** apart vertically (randomized). A buffer of 1.5 screen-heights of platforms is maintained above the camera at all times.
+Чекпоинты:
 
-### Starting Platform
-
-A fixed-width (110 px) static platform is placed at `y = VIEW_HEIGHT - 48` to guarantee a safe first bounce.
-
-## Game States
-
-| State | Description |
-|---|---|
-| Active | Physics running, input processed, score updating |
-| Game Over | Physics frozen, overlay shown, score locked |
-
-Transition to Game Over: player's Y > `cameraY + VIEW_HEIGHT + 80`.
-
-Restart: Space key, tap on overlay, tap on canvas while game over, or "Новая попытка" button.
-
-## Scoring
-
-```
-score = floor((startHeight - player.y) / 10)
-```
-
-`startHeight` is the player's initial Y position. Score only increases — it never decreases when the player moves down. Best score is saved to `localStorage` key `"sky-bounce-best"`.
-
-## Camera
-
-The camera moves **only upward**, tracking the player when the player rises above 35% from the top of the viewport:
-
-```
-targetCameraY = player.y - VIEW_HEIGHT * 0.35
-cameraY = min(cameraY, targetCameraY)
-```
-
-## Controls
-
-| Input | Action |
-|---|---|
-| `A` / `←` | Move left |
-| `D` / `→` | Move right |
-| `Space` | Restart (game over only) |
-| Touch left half of canvas | Move left |
-| Touch right half of canvas | Move right |
-| Touch zone buttons (mobile) | Move left / right |
-| Tap overlay / canvas | Restart (game over only) |
-
-Window blur and `visibilitychange` (tab hidden) release all movement keys and pause the animation loop.
-
-## Difficulty
-
-Difficulty is implicit and constant — platform spacing and type ratios do not change with height. Perceived difficulty increases naturally as the player climbs faster and has less reaction time.
-
-## Out of Scope
-
-- No enemies or hazards beyond fragile platforms
-- No power-ups or collectibles
-- No sound or music
-- No server-side logic or leaderboards
-- No game engine — pure Canvas 2D
+1–2 на уровень (чтобы не ломать темп)
+11. Replayability
+Альтернативные маршруты
+Быстрое перепрохождение
+Возможен:
+тайм-скор
+сбор всех секретов
+12. Технические ориентиры
+Время уровня: 2–3 минуты
+Размер уровня: компактный, но с вертикальностью
+Среднее количество прыжков: 20–40 на уровень
+13. Риски
+Однообразие уровней → решается уникальными механиками снов
+Слишком линейный дизайн → нужны ветвления
+Потеря темпа → избегать длинных пауз
+14. Расширения (опционально)
+Скрытые "искаженные" осколки
+Альтернативные концовки
+Нелинейный выбор снов
