@@ -157,7 +157,8 @@ h1 {
   -webkit-user-select: none;
 }
 
-.overlay {
+.menu-overlay,
+.gameover-overlay {
   position: absolute;
   inset: 12px;
   display: grid;
@@ -166,27 +167,55 @@ h1 {
   background: rgba(17, 24, 39, 0.24);
 }
 
-.overlay.hidden {
+.menu-overlay.hidden,
+.gameover-overlay.hidden {
   display: none;
 }
 
 .overlay-card {
-  max-width: 240px;
+  max-width: 260px;
   border-radius: 22px;
-  padding: 20px;
+  padding: 24px 20px;
   text-align: center;
-  background: rgba(255, 247, 237, 0.92);
+  background: rgba(255, 247, 237, 0.95);
   color: #7c2d12;
 }
 
 .overlay-title {
   margin: 0;
-  font-size: 1.45rem;
+  font-size: 1.6rem;
   font-weight: 700;
 }
 
-.overlay-text {
+.overlay-hint {
   margin: 10px 0 0;
+  font-size: 0.88rem;
+  color: #9a3412;
+  line-height: 1.5;
+}
+
+.overlay-score {
+  margin: 8px 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.action-button {
+  display: block;
+  margin: 18px auto 0;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 36px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #fff7ed;
+  background: linear-gradient(135deg, #ea580c, #dc2626);
+  cursor: pointer;
+}
+
+.action-button:hover {
+  filter: brightness(1.05);
 }
 
 .touch-controls {
@@ -292,18 +321,14 @@ h1 {
     padding: 7px 10px;
   }
 
-  .restart-button {
-    margin-top: 18px;
-    min-height: 52px;
-  }
-
   .game-shell {
     width: 100%;
     border-radius: 24px;
     padding: 10px;
   }
 
-  .overlay {
+  .menu-overlay,
+  .gameover-overlay {
     inset: 10px;
   }
 
